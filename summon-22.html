@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slime Runes — Summon</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --gold: #F5C518; --gold2: #C9A000;
+  --purple: #7B4FCC; --purple2: #4A2A8A;
+  --red: #C0392B; --red2: #922B21;
+  --green: #1E8449; --green2: #145A32;
+  --blue: #1A5276; --blue2: #154360;
+  --bg: #F7F5FF; --white: #FFFFFF;
+  --text: #1A1035; --mid: #4A3F6B; --muted: #8878AA;
+  --border: #EAE4FF;
+  --radius: 12px;
+}
+html, body { width: 100%; background: #1a1035; font-family: 'Nunito', sans-serif; color: var(--text); }
+
+.wrapper { width: 100%; height: 750px; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+
+/* BG */
+.summon-bg {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, #0a0520 0%, #1a0a35 40%, #0a1525 100%);
+  z-index: 0;
+}
+.summon-bg img { width: 100%; height: 100%; object-fit: cover; opacity: 0.4; }
+
+/* TOPBAR */
+.topbar {
+  position: relative; z-index: 10;
+  height: 50px; flex-shrink: 0;
+  background: rgba(10,5,32,0.85);
+  border-bottom: 1px solid rgba(200,160,255,0.15);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px;
+  backdrop-filter: blur(8px);
+}
+.top-left { display: flex; align-items: center; gap: 10px; }
+.page-badge {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--gold2));
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 12px rgba(245,197,24,0.5);
+}
+.page-badge img { width: 22px; height: 22px; object-fit: contain; }
+.page-title { font-family: 'Cinzel', serif; font-size: 18px; font-weight: 700; color: #fff; }
+.page-sub { font-size: 10px; color: rgba(200,160,255,0.7); font-weight: 600; }
+.top-currencies { display: flex; gap: 8px; }
+.currency {
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(0,0,0,0.4); border: 1px solid rgba(200,160,255,0.2);
+  border-radius: 999px; padding: 4px 10px 4px 6px;
+  font-size: 12px; font-weight: 800; color: #fff;
+}
+.currency img { width: 16px; height: 16px; object-fit: contain; }
+.currency-add {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: rgba(245,197,24,0.2); border: 1px solid var(--gold);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: var(--gold); cursor: pointer; font-weight: 800;
+}
+.top-icons { display: flex; gap: 6px; }
+.top-icon {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(200,160,255,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; cursor: pointer; color: rgba(255,255,255,0.7);
+}
+
+/* BODY */
+.body-row { display: flex; flex: 1; overflow: hidden; position: relative; z-index: 5; }
+
+/* LEFT PANEL */
+.left-panel { width: 220px; flex-shrink: 0; padding: 10px 8px; display: flex; flex-direction: column; gap: 6px; overflow: hidden; }
+
+.summon-tab {
+  border-radius: var(--radius); padding: 10px 10px;
+  cursor: pointer; transition: all .2s;
+  border: 1.5px solid transparent;
+  display: flex; align-items: center; gap: 8px;
+  position: relative; overflow: hidden;
+  background: rgba(255,255,255,0.05);
+}
+.summon-tab::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 4px; border-radius: 4px 0 0 4px;
+}
+.summon-tab.melee { background: rgba(192,57,43,0.12); border-color: rgba(192,57,43,0.3); }
+.summon-tab.melee::before { background: var(--red); }
+.summon-tab.ranged { background: rgba(30,132,73,0.12); border-color: rgba(30,132,73,0.3); }
+.summon-tab.ranged::before { background: var(--green); }
+.summon-tab.support { background: rgba(123,79,204,0.12); border-color: rgba(123,79,204,0.3); }
+.summon-tab.support::before { background: var(--purple); }
+.summon-tab.active.melee { background: rgba(192,57,43,0.25); border-color: rgba(192,57,43,0.7); box-shadow: 0 0 16px rgba(192,57,43,0.3); }
+.summon-tab.active.ranged { background: rgba(30,132,73,0.25); border-color: rgba(30,132,73,0.7); box-shadow: 0 0 16px rgba(30,132,73,0.3); }
+.summon-tab.active.support { background: rgba(123,79,204,0.25); border-color: rgba(123,79,204,0.7); box-shadow: 0 0 16px rgba(123,79,204,0.3); }
+
+.tab-icon {
+  width: 36px; height: 36px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.melee .tab-icon { background: rgba(192,57,43,0.3); }
+.ranged .tab-icon { background: rgba(30,132,73,0.3); }
+.support .tab-icon { background: rgba(123,79,204,0.3); }
+.tab-icon img { width: 28px; height: 28px; object-fit: contain; }
+
+.tab-name { font-family: 'Cinzel', serif; font-size: 12px; font-weight: 700; color: #fff; }
+.tab-desc { font-size: 9px; color: rgba(200,160,255,0.6); line-height: 1.4; margin-top: 1px; }
+.tab-classes { display: flex; gap: 6px; margin-top: 6px; }
+.class-icon { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+.melee .class-icon { background: rgba(192,57,43,0.3); border: 1px solid rgba(192,57,43,0.5); }
+.ranged .class-icon { background: rgba(30,132,73,0.3); border: 1px solid rgba(30,132,73,0.5); }
+.support .class-icon { background: rgba(123,79,204,0.3); border: 1px solid rgba(123,79,204,0.5); }
+.class-icon img { width: 16px; height: 16px; object-fit: contain; }
+.class-name { font-size: 7px; color: rgba(255,255,255,0.5); text-align: center; margin-top: 1px; }
+
+.tab-slime { width: 70px; height: 70px; object-fit: contain; margin-left: auto; flex-shrink: 0; }
+.tab-slime-wrap { width: 70px; height: 70px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+
+.preview-btn {
+  margin-top: auto; width: 100%;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(200,160,255,0.2);
+  border-radius: var(--radius); padding: 9px;
+  font-family: 'Nunito', sans-serif; font-size: 11px; font-weight: 800;
+  color: rgba(200,160,255,0.8); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+
+/* ═══════════════════════════════════════
+   CENTER PANEL — REDESIGNED PORTAL SYSTEM
+   ═══════════════════════════════════════ */
+.center-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 6px 4px;
+  overflow: hidden;
+}
+
+/* Ambient background glow behind portal */
+.center-panel::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -60%);
+  width: 320px; height: 320px;
+  background: radial-gradient(ellipse, rgba(140,60,255,0.25) 0%, rgba(80,20,180,0.12) 40%, transparent 70%);
+  border-radius: 50%;
+  animation: ambientPulse 3s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Light rays from behind portal */
+.center-panel::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -60%);
+  width: 260px; height: 260px;
+  background: radial-gradient(ellipse, rgba(180,100,255,0.15) 0%, transparent 65%);
+  border-radius: 50%;
+  animation: ambientPulse 2s ease-in-out infinite 0.5s;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes ambientPulse {
+  0%,100% { opacity: 0.6; transform: translate(-50%,-60%) scale(1); }
+  50%      { opacity: 1;   transform: translate(-50%,-60%) scale(1.1); }
+}
+
+/* ── PORTAL WRAP ── */
+.portal-wrap {
+  position: relative;
+  width: 340px;
+  height: 340px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  flex-shrink: 0;
+}
+
+/* ── PORTAL LAYERS ── */
+.portal-layer {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.portal-layer img { object-fit: contain; }
+
+/* Layer 1 — FLOOR: anchor, wider than ring */
+.layer-floor {
+  inset: -20px;
+  z-index: 1;
+  filter: drop-shadow(0 20px 30px rgba(0,0,0,0.8));
+}
+.layer-floor img { width: 100%; height: 100%; }
+
+/* Layer 2 — INNER SWIRL: slow cosmic rotation */
+.layer-inner {
+  inset: 30px;
+  z-index: 2;
+  animation: innerRotate 10s linear infinite;
+  mix-blend-mode: screen;
+  filter: blur(0.5px) brightness(1.2);
+}
+.layer-inner img { width: 100%; height: 100%; }
+
+/* Layer 3 — GLOW: soft magical aura pulse */
+.layer-glow {
+  inset: 10px;
+  z-index: 3;
+  mix-blend-mode: screen;
+  animation: glowBreath 2.5s ease-in-out infinite;
+  filter: blur(2px);
+}
+.layer-glow img { width: 100%; height: 100%; }
+
+/* Layer 4 — PARTICLES: independent float */
+.layer-particles {
+  inset: -10px;
+  z-index: 4;
+  animation: particleDrift 5s ease-in-out infinite;
+}
+.layer-particles img { width: 100%; height: 100%; }
+
+/* Layer 5 — RING: static, heavy, premium */
+.layer-ring {
+  inset: 0;
+  z-index: 5;
+  filter: drop-shadow(0 0 12px rgba(160,80,255,0.6)) drop-shadow(0 0 4px rgba(200,140,255,0.4));
+  animation: ringCrystalPulse 3s ease-in-out infinite;
+}
+.layer-ring img { width: 100%; height: 100%; }
+
+/* Layer 6 — FLASH effect */
+.layer-flash {
+  inset: -40px;
+  z-index: 6;
+  opacity: 0;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+.layer-flash img { width: 100%; height: 100%; }
+.layer-flash.active { animation: summonFlash 0.7s ease-out forwards; }
+
+/* ── ANIMATIONS ── */
+@keyframes innerRotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes glowBreath {
+  0%,100% { opacity: 0.55; transform: scale(0.97); filter: blur(2px) brightness(1); }
+  50%      { opacity: 0.9;  transform: scale(1.04); filter: blur(1px) brightness(1.3); }
+}
+
+@keyframes particleDrift {
+  0%   { transform: translateY(0px) rotate(0deg);   opacity: 0.7; }
+  30%  { transform: translateY(-6px) rotate(3deg);  opacity: 1; }
+  60%  { transform: translateY(-3px) rotate(-2deg); opacity: 0.8; }
+  100% { transform: translateY(0px) rotate(0deg);   opacity: 0.7; }
+}
+
+@keyframes ringCrystalPulse {
+  0%,100% { filter: drop-shadow(0 0 10px rgba(160,80,255,0.5)) drop-shadow(0 0 3px rgba(200,140,255,0.3)); }
+  50%      { filter: drop-shadow(0 0 20px rgba(180,100,255,0.9)) drop-shadow(0 0 8px rgba(220,160,255,0.6)); }
+}
+
+@keyframes summonFlash {
+  0%   { opacity: 0; transform: scale(0.6); }
+  25%  { opacity: 1; transform: scale(1.1); }
+  100% { opacity: 0; transform: scale(2.2); }
+}
+
+@keyframes portalSwitch {
+  0%   { opacity: 1; transform: scale(1); }
+  35%  { opacity: 0; transform: scale(0.88); }
+  65%  { opacity: 0; transform: scale(0.88); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.switching { animation: portalSwitch 0.55s ease both; }
+
+/* ── SUMMON CAPTION — tighter to portal ── */
+.summon-caption {
+  background: rgba(20,10,50,0.7);
+  border: 1px solid rgba(160,100,255,0.25);
+  border-radius: var(--radius);
+  padding: 7px 14px;
+  font-size: 11px;
+  color: rgba(210,180,255,0.85);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  backdrop-filter: blur(4px);
+  z-index: 2;
+}
+.caption-q {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: rgba(200,160,255,0.12); border: 1px solid rgba(200,160,255,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; color: rgba(200,160,255,0.8); cursor: pointer; flex-shrink: 0;
+}
+
+/* ── SUMMON BUTTONS — glow reflection from portal ── */
+.summon-btns {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+  z-index: 2;
+  width: 100%;
+  max-width: 320px;
+}
+.btn-summon1 {
+  flex: 1; border-radius: 999px; padding: 10px 12px;
+  background: linear-gradient(135deg, #0d3d6e, #1a6aa8);
+  border: 1.5px solid #5dade2;
+  cursor: pointer;
+  font-family: 'Cinzel', serif; font-size: 12px; font-weight: 700;
+  color: #fff;
+  display: flex; flex-direction: column; align-items: center;
+  box-shadow: 0 0 18px rgba(41,128,185,0.35), 0 4px 12px rgba(0,0,0,0.4);
+  transition: all .2s;
+  position: relative;
+}
+.btn-summon1:hover {
+  box-shadow: 0 0 28px rgba(41,128,185,0.7), 0 4px 16px rgba(0,0,0,0.5);
+  transform: translateY(-2px);
+}
+.btn-summon10 {
+  flex: 1; border-radius: 999px; padding: 10px 12px;
+  background: linear-gradient(135deg, #7d6000, #c9a000, #f5c518);
+  border: 1.5px solid #f5c518;
+  cursor: pointer;
+  font-family: 'Cinzel', serif; font-size: 12px; font-weight: 700;
+  color: #1a1035;
+  display: flex; flex-direction: column; align-items: center;
+  box-shadow: 0 0 18px rgba(245,197,24,0.35), 0 4px 12px rgba(0,0,0,0.4);
+  transition: all .2s;
+  position: relative;
+}
+.btn-summon10:hover {
+  box-shadow: 0 0 30px rgba(245,197,24,0.7), 0 4px 16px rgba(0,0,0,0.5);
+  transform: translateY(-2px);
+}
+.btn-discount {
+  position: absolute; top: -8px;
+  background: #c0392b; color: #fff;
+  font-family: 'Nunito', sans-serif; font-size: 9px; font-weight: 800;
+  padding: 2px 8px; border-radius: 999px;
+  box-shadow: 0 2px 6px rgba(192,57,43,0.5);
+}
+.btn-cost {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 15px; font-weight: 800; margin-top: 2px;
+}
+.btn-cost img { width: 13px; height: 13px; object-fit: contain; }
+
+.skip-anim {
+  display: flex; align-items: center; gap: 6px;
+  margin-top: 6px;
+  font-size: 10px; color: rgba(200,160,255,0.45);
+  cursor: pointer; z-index: 2;
+}
+.skip-anim input { cursor: pointer; }
+
+/* RIGHT PANEL */
+.right-panel { width: 210px; flex-shrink: 0; padding: 10px 8px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
+
+.info-card {
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(200,160,255,0.15);
+  border-radius: var(--radius); padding: 10px; overflow: hidden;
+}
+.info-title {
+  font-family: 'Cinzel', serif; font-size: 11px; font-weight: 700;
+  color: #fff; text-align: center; padding: 6px 10px; border-radius: 6px;
+  margin: -10px -10px 10px; letter-spacing: 1px;
+}
+.info-title.melee { background: linear-gradient(90deg, var(--red2), var(--red)); }
+.info-title.ranged { background: linear-gradient(90deg, var(--green2), var(--green)); }
+.info-title.support { background: linear-gradient(90deg, var(--purple2), var(--purple)); }
+
+.drop-section-title {
+  font-size: 9px; font-weight: 800; color: rgba(200,160,255,0.6);
+  text-transform: uppercase; letter-spacing: 1px;
+  display: flex; align-items: center; gap: 5px; margin-bottom: 7px;
+}
+.drop-section-title::before { content: '◆'; font-size: 7px; color: var(--gold); }
+
+.drop-row { display: flex; align-items: center; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid rgba(200,160,255,0.08); }
+.drop-row:last-child { border-bottom: none; }
+.drop-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.drop-name { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.8); flex: 1; margin-left: 7px; }
+.drop-pct { font-size: 10px; font-weight: 800; color: rgba(200,160,255,0.7); }
+.drop-name.mythic { color: #E74C3C; }
+
+.elem-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+.elem-icon { width: 28px; height: 28px; border-radius: 50%; border: 1px solid rgba(200,160,255,0.2); background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; transition: all .15s; }
+.elem-icon:hover { border-color: var(--gold); transform: scale(1.1); }
+.elem-icon img { width: 18px; height: 18px; object-fit: contain; }
+
+.classes-row { display: flex; gap: 10px; margin-top: 4px; }
+.class-box { display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; }
+.class-box-icon { width: 34px; height: 34px; border-radius: 8px; background: rgba(255,255,255,0.08); border: 1px solid rgba(200,160,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.class-box-icon img { width: 22px; height: 22px; object-fit: contain; }
+.class-box-name { font-size: 8px; color: rgba(200,160,255,0.6); font-weight: 700; }
+
+/* Booster card */
+.booster-card {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(200,160,255,0.12);
+  border-radius: var(--radius); padding: 10px;
+}
+.booster-title {
+  font-family: 'Cinzel', serif; font-size: 10px; font-weight: 700;
+  color: var(--gold); text-align: center; margin-bottom: 8px;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+}
+.booster-body { display: flex; align-items: center; gap: 8px; }
+.booster-slime { width: 44px; height: 44px; object-fit: contain; flex-shrink: 0; }
+.booster-desc { font-size: 9px; color: rgba(200,160,255,0.6); line-height: 1.5; }
+.booster-count { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; font-size: 10px; color: rgba(200,160,255,0.7); font-weight: 700; }
+.booster-add { width: 20px; height: 20px; border-radius: 50%; background: rgba(245,197,24,0.15); border: 1px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--gold); cursor: pointer; }
+
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-thumb { background: rgba(200,160,255,0.2); border-radius: 999px; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- BG -->
+  <div class="summon-bg">
+    <img src="assets/summon/ui/summon-background.jpg" alt="">
+  </div>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="top-left">
+      <div class="page-badge">
+        <img src="assets/summon/ui/summon-crystal.png" alt="">
+      </div>
+      <div>
+        <div class="page-title">Summon</div>
+        <div class="page-sub">Call powerful slimes and build your perfect team!</div>
+      </div>
+    </div>
+    <div class="top-currencies">
+      <div class="currency">
+        <img src="assets/icons/gem.png" alt="">
+        8,935
+        <div class="currency-add">+</div>
+      </div>
+      <div class="currency">
+        <img src="assets/icons/stat-volume.png" alt="">
+        1,245
+        <div class="currency-add">+</div>
+      </div>
+    </div>
+    <div class="top-icons">
+      <div class="top-icon"><img src="assets/icons/mail.png" alt="" style="width:16px;height:16px;object-fit:contain"></div>
+      <div class="top-icon"><img src="assets/icons/chat.png" alt="" style="width:16px;height:16px;object-fit:contain"></div>
+      <a href="index.html" class="top-icon"><img src="assets/icons/nav-dashboard.png" alt="" style="width:16px;height:16px;object-fit:contain"></a>
+    </div>
+  </div>
+
+  <!-- AUDIO -->
+  <audio id="audioPortal" loop><source src="assets/summon/audio/portal-loop.mp3" type="audio/mpeg"></audio>
+  <audio id="audioCharge"><source src="assets/summon/audio/summon-charge.mp3" type="audio/mpeg"></audio>
+  <audio id="audioFlash"><source src="assets/summon/audio/summon-flash.mp3" type="audio/mpeg"></audio>
+  <audio id="audioReveal"><source src="assets/summon/audio/summon-reveal.mp3" type="audio/mpeg"></audio>
+  <audio id="audioLegendary"><source src="assets/summon/audio/rarity-legendary.mp3" type="audio/mpeg"></audio>
+  </div>
+
+  <div class="body-row">
+
+    <!-- LEFT -->
+    <div class="left-panel">
+
+      <div class="summon-tab melee active" onclick="switchTab('melee')">
+        <div>
+          <div class="tab-icon">
+            <img src="assets/summon/ui/icon-melee.png" alt="">
+          </div>
+        </div>
+        <div style="flex:1">
+          <div class="tab-name">Melee Summon</div>
+          <div class="tab-desc">Slimes that excel in close-range combat.</div>
+          <div class="tab-classes">
+            <div>
+              <div class="class-icon"><img src="assets/summon/icons/swordsman.png" alt=""></div>
+              <div class="class-name">Sword</div>
+            </div>
+            <div>
+              <div class="class-icon"><img src="assets/summon/icons/valkyrie.png" alt=""></div>
+              <div class="class-name">Valkyrie</div>
+            </div>
+            <div>
+              <div class="class-icon"><img src="assets/summon/icons/guardian.png" alt=""></div>
+              <div class="class-name">Guard</div>
+            </div>
+          </div>
+        </div>
+        <div class="tab-slime-wrap">
+          <img src="assets/summon/slimes/melee/body.png" class="tab-slime" alt="">
+        </div>
+      </div>
+
+      <div class="summon-tab ranged" onclick="switchTab('ranged')">
+        <div>
+          <div class="tab-icon">
+            <img src="assets/summon/ui/icon-ranged.png" alt="">
+          </div>
+        </div>
+        <div style="flex:1">
+          <div class="tab-name">Ranged Summon</div>
+          <div class="tab-desc">Slimes that attack from a distance with precision.</div>
+          <div class="tab-classes">
+            <div>
+              <div class="class-icon"><img src="assets/summon/icons/archer.png" alt=""></div>
+              <div class="class-name">Archer</div>
+            </div>
+            <div>
+              <div class="class-icon"><img src="assets/summon/icons/gunner.png" alt=""></div>
+              <div class="class-name">Gunner</div>
+            </div>
+            <div>
+              <div class="class-icon"><img src="assets/summon/icons/mage.png" alt=""></div>
+              <div class="class-name">Mage</div>
+            </div>
+          </div>
+        </div>
+        <div class="tab-slime-wrap">
+          <img src="assets/summon/slimes/ranged/body.png" class="tab-slime" alt="">
+        </div>
+      </div>
+
+      <div class="summon-tab support" onclick="switchTab('support')">
+        <div>
+          <div class="tab-icon">
+            <img src="assets/summon/ui/icon-support.png" alt="">
+          </div>
+        </div>
+        <div style="flex:1">
+          <div class="tab-name">Support Summon</div>
+          <div class="tab-desc">Slimes that protect, heal, and empower allies.</div>
+          <div class="tab-classes">
+            <div>
+              <div class="class-icon"><img src="assets/summon/icons/defender.png" alt=""></div>
+              <div class="class-name">Defend</div>
+            </div>
+            <div>
+              <div class="class-icon"><img src="assets/summon/icons/priest.png" alt=""></div>
+              <div class="class-name">Priest</div>
+            </div>
+            <div>
+              <div class="class-icon"><img src="assets/summon/icons/enchanter.png" alt=""></div>
+              <div class="class-name">Enchant</div>
+            </div>
+          </div>
+        </div>
+        <div class="tab-slime-wrap">
+          <img src="assets/summon/slimes/support/body.png" class="tab-slime" alt="">
+        </div>
+      </div>
+
+      <button class="preview-btn">Preview Classes</button>
+    </div>
+
+    <!-- CENTER -->
+    <div class="center-panel">
+
+      <!-- Portal -->
+      <div class="portal-wrap" id="portalWrap">
+        <!-- Layer 1: Floor (bottom, static) -->
+        <div class="portal-layer layer-floor">
+          <img src="assets/summon/portals/melee/floor.png" alt="" id="pFloor">
+        </div>
+        <!-- Layer 2: Inner swirl (rotate) -->
+        <div class="portal-layer layer-inner">
+          <img src="assets/summon/portals/melee/inner.png" alt="" id="pInner">
+        </div>
+        <!-- Layer 3: Glow aura (pulse) -->
+        <div class="portal-layer layer-glow">
+          <img src="assets/summon/portals/melee/glow.png" alt="" id="pGlow">
+        </div>
+        <!-- Layer 4: Particles (float) -->
+        <div class="portal-layer layer-particles">
+          <img src="assets/summon/portals/melee/particles.png" alt="" id="pParticles">
+        </div>
+        <!-- Layer 5: Ring (top, static) -->
+        <div class="portal-layer layer-ring">
+          <img src="assets/summon/portals/melee/ring.png" alt="" id="pRing">
+        </div>
+        <!-- Flash effect -->
+        <div class="portal-layer layer-flash" id="pFlash">
+          <img src="assets/summon/effects/flash.png" alt="">
+        </div>
+      </div>
+
+      <div class="summon-caption">
+        Summon high-quality slimes from the selected category.
+        <div class="caption-q">?</div>
+      </div>
+
+      <div class="summon-btns">
+        <button class="btn-summon1" onclick="doSummon()">
+          Summon 1x
+          <div class="btn-cost">
+            <img src="assets/icons/gem.png" alt="">
+            300
+          </div>
+        </button>
+        <button class="btn-summon10" onclick="doSummon()">
+          <div class="btn-discount">10% OFF</div>
+          Summon 10x
+          <div class="btn-cost">
+            <img src="assets/icons/gem.png" alt="">
+            2,700
+          </div>
+        </button>
+      </div>
+
+      <div class="skip-anim">
+        <input type="checkbox" id="skipAnim">
+        <label for="skipAnim">Skip Animation</label>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right-panel">
+      <div class="info-card">
+        <div class="info-title melee" id="infoTitle">Summon Info</div>
+
+        <div class="drop-section-title">Drop Rates</div>
+        <div class="drop-row">
+          <div class="drop-dot" style="background:#95A5A6"></div>
+          <div class="drop-name">Common</div>
+          <div class="drop-pct">60%</div>
+        </div>
+        <div class="drop-row">
+          <div class="drop-dot" style="background:#3498DB"></div>
+          <div class="drop-name">Rare</div>
+          <div class="drop-pct">25%</div>
+        </div>
+        <div class="drop-row">
+          <div class="drop-dot" style="background:#9B59B6"></div>
+          <div class="drop-name">Epic</div>
+          <div class="drop-pct">10%</div>
+        </div>
+        <div class="drop-row">
+          <div class="drop-dot" style="background:#F39C12"></div>
+          <div class="drop-name">Legendary</div>
+          <div class="drop-pct">4%</div>
+        </div>
+        <div class="drop-row">
+          <div class="drop-dot" style="background:#E74C3C"></div>
+          <div class="drop-name mythic">Mythic</div>
+          <div class="drop-pct">1%</div>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="drop-section-title">Elements</div>
+        <div class="elem-row">
+          <div class="elem-icon"><img src="assets/summon/icons/elem-fire.png" alt=""></div>
+          <div class="elem-icon"><img src="assets/summon/icons/elem-water.png" alt=""></div>
+          <div class="elem-icon"><img src="assets/summon/icons/elem-nature.png" alt=""></div>
+          <div class="elem-icon"><img src="assets/summon/icons/elem-light.png" alt=""></div>
+          <div class="elem-icon"><img src="assets/summon/icons/elem-dark.png" alt=""></div>
+          <div class="elem-icon"><img src="assets/summon/icons/elem-chaos.png" alt=""></div>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="drop-section-title">Classes in this Category</div>
+        <div class="classes-row" id="classesRow">
+          <div class="class-box">
+            <div class="class-box-icon"><img src="assets/summon/icons/swordsman.png" alt=""></div>
+            <div class="class-box-name">Swordsman</div>
+          </div>
+          <div class="class-box">
+            <div class="class-box-icon"><img src="assets/summon/icons/valkyrie.png" alt=""></div>
+            <div class="class-box-name">Valkyrie</div>
+          </div>
+          <div class="class-box">
+            <div class="class-box-icon"><img src="assets/summon/icons/guardian.png" alt=""></div>
+            <div class="class-box-name">Guardian</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="booster-card">
+        <div class="booster-title">Summon Booster</div>
+        <div class="booster-body">
+          <img src="assets/summon/slimes/melee/glow.png" class="booster-slime" alt="" onerror="this.outerHTML='<span style=\'font-size:36px\'>😇</span>'">
+          <div class="booster-desc">Use a Summon Booster to increase your chances of getting higher rarity slimes!</div>
+        </div>
+        <div class="booster-count">
+          Boosters Owned: 2
+          <div class="booster-add">+</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const tabs = { melee: {}, ranged: {}, support: {} };
+const classData = {
+  melee: {
+    color: 'melee',
+    classes: [
+      { name: 'Swordsman', icon: 'assets/summon/icons/swordsman.png', fb: '🗡️' },
+      { name: 'Valkyrie', icon: 'assets/summon/icons/valkyrie.png', fb: '🪓' },
+      { name: 'Guardian', icon: 'assets/summon/icons/guardian.png', fb: '🛡️' },
+    ]
+  },
+  ranged: {
+    color: 'ranged',
+    classes: [
+      { name: 'Archer', icon: 'assets/summon/icons/archer.png', fb: '🏹' },
+      { name: 'Gunner', icon: 'assets/summon/icons/gunner.png', fb: '🔫' },
+      { name: 'Mage', icon: 'assets/summon/icons/mage.png', fb: '🌀' },
+    ]
+  },
+  support: {
+    color: 'support',
+    classes: [
+      { name: 'Defender', icon: 'assets/summon/icons/defender.png', fb: '🛡️' },
+      { name: 'Priest', icon: 'assets/summon/icons/priest.png', fb: '✚' },
+      { name: 'Enchanter', icon: 'assets/summon/icons/enchanter.png', fb: '💫' },
+    ]
+  }
+};
+
+let current = 'melee';
+
+function switchTab(type) {
+  if (current === type) return;
+  current = type;
+
+  // Update tab active state
+  document.querySelectorAll('.summon-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector('.summon-tab.' + type).classList.add('active');
+
+  // Switching animation
+  const wrap = document.getElementById('portalWrap');
+  wrap.classList.add('switching');
+  setTimeout(() => {
+    updatePortalImages(type);
+    wrap.classList.remove('switching');
+  }, 250);
+
+  // Update info panel
+  document.getElementById('infoTitle').className = 'info-title ' + type;
+
+  // Update classes
+  const cr = document.getElementById('classesRow');
+  cr.innerHTML = classData[type].classes.map(c => `
+    <div class="class-box">
+      <div class="class-box-icon"><img src="${c.icon}" alt="" onerror="this.outerHTML='${c.fb}'"></div>
+      <div class="class-box-name">${c.name}</div>
+    </div>
+  `).join('');
+}
+
+function updatePortalImages(type) {
+  const layers = { pFloor:'floor', pInner:'inner', pGlow:'glow', pParticles:'particles', pRing:'ring' };
+  Object.entries(layers).forEach(([id, file]) => {
+    const el = document.getElementById(id);
+    if (el) el.src = `assets/summon/portals/${type}/${file}.png`;
+  });
+}
+
+function updateSlimeImages(type) {
+  const parts = ['Shadow','Glow','Body','Eyes','Acc','Weapon'];
+  const map = { Shadow:'shadow', Glow:'glow', Body:'body', Eyes:'eyes', Acc:'accessories', Weapon:'weapon' };
+  parts.forEach(p => {
+    const el = document.getElementById('s' + p);
+    if (el) el.src = `assets/summon/slimes/${type}/${map[p]}.png`;
+  });
+}
+
+function doSummon() {
+  const skip = document.getElementById('skipAnim').checked;
+  const flash = document.getElementById('pFlash');
+  flash.classList.remove('active');
+  void flash.offsetWidth;
+  flash.classList.add('active');
+  setTimeout(() => flash.classList.remove('active'), 700);
+  if (skip) return;
+  const charge = document.getElementById('audioCharge');
+  const flashAudio = document.getElementById('audioFlash');
+  const reveal = document.getElementById('audioReveal');
+  if (charge) { charge.currentTime = 0; charge.play(); }
+  setTimeout(() => { if (flashAudio) { flashAudio.currentTime = 0; flashAudio.play(); } }, 400);
+  setTimeout(() => { if (reveal) { reveal.currentTime = 0; reveal.play(); } }, 700);
+}
+
+// Autoplay portal ambient
+window.addEventListener('click', () => {
+  const portal = document.getElementById('audioPortal');
+  if (portal && portal.paused) portal.play();
+}, { once: true });
+</script>
+</body>
+</html>
