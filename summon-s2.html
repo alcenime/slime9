@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slime Runes — Summon</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --gold: #F5C518; --gold2: #C9A000;
+  --purple: #7B4FCC;
+  --red: #C0392B; --red2: #922B21;
+  --green: #1E8449; --green2: #145A32;
+  --blue: #1A5276;
+  --radius: 12px;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background: #0a0520;
+  font-family: 'Nunito', sans-serif;
+}
+
+/* ── WRAPPER ── */
+.wrapper {
+  width: 100%;
+  height: 750px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── BACKGROUND ── */
+.summon-bg {
+  position: absolute; inset: 0; z-index: 0;
+}
+.summon-bg img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+/* dark overlay biar UI keliatan */
+.summon-bg::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(10,5,32,0.45) 0%,
+    rgba(10,5,32,0.25) 40%,
+    rgba(10,5,32,0.55) 100%
+  );
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  position: relative; z-index: 20;
+  height: 50px; flex-shrink: 0;
+  background: rgba(8,4,24,0.8);
+  border-bottom: 1px solid rgba(200,160,255,0.15);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px;
+  backdrop-filter: blur(10px);
+}
+.top-left { display: flex; align-items: center; gap: 10px; }
+.page-badge {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--gold2));
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 12px rgba(245,197,24,0.5); flex-shrink: 0;
+}
+.page-badge img { width: 22px; height: 22px; object-fit: contain; }
+.page-title {
+  font-family: 'Cinzel', serif; font-size: 17px; font-weight: 700;
+  color: #fff; line-height: 1;
+}
+.page-sub { font-size: 10px; color: rgba(200,160,255,0.6); font-weight: 600; }
+.top-currencies { display: flex; gap: 8px; }
+.currency {
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(0,0,0,0.45); border: 1px solid rgba(200,160,255,0.2);
+  border-radius: 999px; padding: 4px 10px 4px 7px;
+  font-size: 12px; font-weight: 800; color: #fff;
+}
+.currency img { width: 16px; height: 16px; object-fit: contain; }
+.cur-add {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: rgba(245,197,24,0.15); border: 1px solid var(--gold);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; color: var(--gold); cursor: pointer; font-weight: 800; line-height: 1;
+}
+.top-icons { display: flex; gap: 6px; }
+.top-icon {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(200,160,255,0.15);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all .15s; text-decoration: none;
+}
+.top-icon:hover { background: rgba(200,160,255,0.15); }
+.top-icon img { width: 16px; height: 16px; object-fit: contain; }
+
+/* ── BODY ── */
+.body-row {
+  display: flex; flex: 1; overflow: hidden;
+  position: relative; z-index: 10;
+}
+
+/* ── LEFT PANEL ── */
+.left-panel {
+  width: 310px; flex-shrink: 0;
+  padding: 10px 0;
+  display: flex; flex-direction: column;
+  gap: 10px;
+  background: transparent;
+  overflow: hidden;
+}
+
+.summon-tab {
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all .25s;
+  border: 1.5px solid rgba(255,255,255,0.08);
+  overflow: hidden;
+  position: relative;
+  flex: 1;
+  width: 100%;
+  margin: 0 8px;
+  width: calc(100% - 16px);
+}
+.summon-tab img.tab-img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  transition: transform .25s;
+}
+.summon-tab:hover img.tab-img { transform: scale(1.04); }
+.summon-tab::before {
+  content: '';
+  position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(90deg, rgba(0,0,0,0.3) 0%, transparent 60%);
+  pointer-events: none;
+}
+.summon-tab::after {
+  content: '';
+  position: absolute; inset: 0; z-index: 2;
+  border-radius: 8px;
+  pointer-events: none;
+  transition: all .25s;
+}
+
+/* color accent per type */
+.summon-tab.melee  { border-color: rgba(192,57,43,0.5); }
+.summon-tab.ranged { border-color: rgba(30,132,73,0.5); }
+.summon-tab.support{ border-color: rgba(123,79,204,0.5); }
+.summon-tab.pet    { border-color: rgba(245,197,24,0.5); }
+
+.summon-tab.active.melee   { border-color: #e74c3c; box-shadow: 0 0 20px rgba(231,76,60,0.5), inset 0 0 30px rgba(231,76,60,0.15); }
+.summon-tab.active.ranged  { border-color: #2ecc71; box-shadow: 0 0 20px rgba(46,204,113,0.5), inset 0 0 30px rgba(46,204,113,0.15); }
+.summon-tab.active.support { border-color: #a67fe8; box-shadow: 0 0 20px rgba(166,127,232,0.5), inset 0 0 30px rgba(166,127,232,0.15); }
+.summon-tab.active.pet     { border-color: #f5c518; box-shadow: 0 0 20px rgba(245,197,24,0.5), inset 0 0 30px rgba(245,197,24,0.15); }
+
+.summon-tab.active.melee::after   { background: rgba(192,57,43,0.1); box-shadow: inset 0 0 2px 2px rgba(231,76,60,0.3); }
+.summon-tab.active.ranged::after  { background: rgba(30,132,73,0.1); box-shadow: inset 0 0 2px 2px rgba(46,204,113,0.3); }
+.summon-tab.active.support::after { background: rgba(123,79,204,0.1); box-shadow: inset 0 0 2px 2px rgba(166,127,232,0.3); }
+.summon-tab.active.pet::after     { background: rgba(245,197,24,0.08); box-shadow: inset 0 0 2px 2px rgba(245,197,24,0.3); }
+
+/* ── CENTER PANEL ── */
+.center-panel {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 8px 10px;
+  position: relative;
+}
+
+/* Portal wrap */
+.portal-wrap {
+  position: relative;
+  width: 300px; height: 300px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.portal-layer {
+  position: absolute;
+  display: flex; align-items: center; justify-content: center;
+}
+.portal-layer img { object-fit: contain; }
+
+/* Layer order & animations */
+.layer-floor {
+  inset: -15px; z-index: 1;
+  filter: drop-shadow(0 16px 24px rgba(0,0,0,0.7));
+}
+.layer-floor img { width: 100%; height: 100%; }
+
+.layer-inner {
+  inset: 25px; z-index: 2;
+  animation: innerSpin 9s linear infinite;
+  mix-blend-mode: screen;
+}
+.layer-inner img { width: 100%; height: 100%; }
+
+.layer-glow {
+  inset: 5px; z-index: 3;
+  mix-blend-mode: screen;
+  animation: glowBreath 2.8s ease-in-out infinite;
+  filter: blur(1.5px);
+}
+.layer-glow img { width: 100%; height: 100%; }
+
+.layer-particles {
+  inset: -5px; z-index: 4;
+  animation: particleDrift 5s ease-in-out infinite;
+}
+.layer-particles img { width: 100%; height: 100%; }
+
+.layer-ring {
+  inset: 0; z-index: 5;
+  animation: ringPulse 3s ease-in-out infinite;
+}
+.layer-ring img { width: 100%; height: 100%; }
+
+.layer-flash {
+  inset: -30px; z-index: 6;
+  opacity: 0; mix-blend-mode: screen; pointer-events: none;
+}
+.layer-flash img { width: 100%; height: 100%; }
+.layer-flash.active { animation: flashBurst 0.7s ease-out forwards; }
+
+@keyframes innerSpin    { to { transform: rotate(360deg); } }
+@keyframes glowBreath   { 0%,100%{opacity:.5;transform:scale(.97)} 50%{opacity:.9;transform:scale(1.05)} }
+@keyframes particleDrift{ 0%,100%{transform:translateY(0) rotate(0deg);opacity:.75} 50%{transform:translateY(-7px) rotate(4deg);opacity:1} }
+@keyframes ringPulse    { 0%,100%{filter:drop-shadow(0 0 8px rgba(160,80,255,.5))} 50%{filter:drop-shadow(0 0 18px rgba(180,100,255,.9))} }
+@keyframes flashBurst   { 0%{opacity:0;transform:scale(.6)} 25%{opacity:1;transform:scale(1.1)} 100%{opacity:0;transform:scale(2)} }
+@keyframes portalSwitch { 0%,100%{opacity:1;transform:scale(1)} 45%,55%{opacity:0;transform:scale(.88)} }
+.switching { animation: portalSwitch .55s ease both; }
+
+/* Summon caption */
+.summon-caption {
+  background: rgba(10,5,30,0.65); border: 1px solid rgba(160,100,255,0.25);
+  border-radius: var(--radius); padding: 7px 14px;
+  font-size: 11px; color: rgba(210,180,255,0.85); font-weight: 600;
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 8px; backdrop-filter: blur(4px);
+}
+.caption-q {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: rgba(200,160,255,0.1); border: 1px solid rgba(200,160,255,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; color: rgba(200,160,255,0.8); cursor: pointer; flex-shrink: 0;
+}
+
+/* Summon buttons */
+.summon-btns {
+  display: flex; gap: 10px; margin-top: 8px;
+  width: 100%; max-width: 310px;
+}
+.btn-summon1 {
+  flex: 1; border-radius: 999px; padding: 9px 10px;
+  background: linear-gradient(135deg, #0d3d6e, #1a6aa8);
+  border: 1.5px solid #5dade2; cursor: pointer;
+  font-family: 'Cinzel', serif; font-size: 12px; font-weight: 700; color: #fff;
+  display: flex; flex-direction: column; align-items: center;
+  box-shadow: 0 0 16px rgba(41,128,185,0.35); transition: all .2s;
+}
+.btn-summon1:hover { box-shadow: 0 0 26px rgba(41,128,185,0.7); transform: translateY(-2px); }
+.btn-summon10 {
+  flex: 1; border-radius: 999px; padding: 9px 10px;
+  background: linear-gradient(135deg, #7d6000, #c9a000, #f5c518);
+  border: 1.5px solid #f5c518; cursor: pointer;
+  font-family: 'Cinzel', serif; font-size: 12px; font-weight: 700; color: #1a1035;
+  display: flex; flex-direction: column; align-items: center;
+  box-shadow: 0 0 16px rgba(245,197,24,0.35); transition: all .2s; position: relative;
+}
+.btn-summon10:hover { box-shadow: 0 0 28px rgba(245,197,24,0.7); transform: translateY(-2px); }
+.btn-discount {
+  position: absolute; top: -8px;
+  background: #c0392b; color: #fff;
+  font-family: 'Nunito', sans-serif; font-size: 9px; font-weight: 800;
+  padding: 2px 8px; border-radius: 999px;
+}
+.btn-cost { display: flex; align-items: center; gap: 4px; font-size: 15px; font-weight: 800; margin-top: 2px; }
+.btn-cost img { width: 13px; height: 13px; object-fit: contain; }
+.skip-anim {
+  display: flex; align-items: center; gap: 6px; margin-top: 6px;
+  font-size: 10px; color: rgba(200,160,255,0.4); cursor: pointer;
+}
+.skip-anim input { cursor: pointer; }
+
+/* ── RIGHT PANEL ── */
+.right-panel {
+  width: 200px; flex-shrink: 0;
+  padding: 8px 7px;
+  display: flex; flex-direction: column; gap: 7px;
+  overflow-y: auto;
+  background: rgba(8,4,24,0.55);
+  backdrop-filter: blur(8px);
+  border-left: 1px solid rgba(200,160,255,0.1);
+}
+
+.info-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(200,160,255,0.12);
+  border-radius: var(--radius); padding: 10px;
+}
+.info-title {
+  font-family: 'Cinzel', serif; font-size: 11px; font-weight: 700;
+  color: #fff; text-align: center; padding: 6px 10px; border-radius: 7px;
+  margin: -10px -10px 10px; letter-spacing: 1px;
+}
+.info-title.melee   { background: linear-gradient(90deg,#7b1a1a,#c0392b); }
+.info-title.ranged  { background: linear-gradient(90deg,#145a32,#1e8449); }
+.info-title.support { background: linear-gradient(90deg,#4a2a8a,#7b4fcc); }
+
+.sec-label {
+  font-size: 9px; font-weight: 800; color: rgba(200,160,255,0.55);
+  text-transform: uppercase; letter-spacing: 1px;
+  display: flex; align-items: center; gap: 5px; margin-bottom: 7px;
+}
+.sec-label::before { content:'◆'; font-size:7px; color:var(--gold); }
+
+.drop-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 4px 0; border-bottom: 1px solid rgba(200,160,255,0.07);
+}
+.drop-row:last-child { border-bottom: none; }
+.drop-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.drop-name { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.8); flex:1; margin-left:7px; }
+.drop-pct  { font-size: 10px; font-weight: 800; color: rgba(200,160,255,0.65); }
+.drop-name.mythic { color:#e74c3c; }
+
+.elem-row { display:flex; gap:5px; flex-wrap:wrap; margin-top:4px; }
+.elem-icon {
+  width:28px; height:28px; border-radius:50%;
+  border:1px solid rgba(200,160,255,0.2); background:rgba(255,255,255,0.05);
+  display:flex; align-items:center; justify-content:center; cursor:pointer;
+  transition:all .15s;
+}
+.elem-icon:hover { border-color:var(--gold); transform:scale(1.1); }
+.elem-icon img { width:18px; height:18px; object-fit:contain; }
+
+.classes-row { display:flex; gap:8px; margin-top:4px; }
+.class-box { display:flex; flex-direction:column; align-items:center; gap:3px; flex:1; }
+.class-box-icon {
+  width:34px; height:34px; border-radius:8px;
+  background:rgba(255,255,255,0.07); border:1px solid rgba(200,160,255,0.15);
+  display:flex; align-items:center; justify-content:center;
+}
+.class-box-icon img { width:22px; height:22px; object-fit:contain; }
+.class-box-name { font-size:8px; color:rgba(200,160,255,0.55); font-weight:700; }
+
+.booster-card {
+  background:rgba(255,255,255,0.03); border:1px solid rgba(200,160,255,0.1);
+  border-radius:var(--radius); padding:10px;
+}
+.booster-title {
+  font-family:'Cinzel',serif; font-size:10px; font-weight:700;
+  color:var(--gold); text-align:center; margin-bottom:7px;
+}
+.booster-body { display:flex; align-items:center; gap:8px; }
+.booster-img { width:42px; height:42px; object-fit:contain; flex-shrink:0; }
+.booster-desc { font-size:9px; color:rgba(200,160,255,0.55); line-height:1.5; }
+.booster-count {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-top:8px; font-size:10px; color:rgba(200,160,255,0.65); font-weight:700;
+}
+.booster-add {
+  width:20px; height:20px; border-radius:50%;
+  background:rgba(245,197,24,0.12); border:1px solid var(--gold);
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; color:var(--gold); cursor:pointer; line-height:1;
+}
+
+.summon-tab.pet { border-color: rgba(245,197,24,0.4); }
+.summon-tab.active.pet { border-color: #f5c518; box-shadow: inset 0 0 20px rgba(245,197,24,0.3); }
+
+/* ── RIGHT PANEL ── */
+.right-panel {
+  width: 200px; flex-shrink: 0;
+  padding: 8px 7px;
+  display: flex; flex-direction: column; gap: 7px;
+  overflow-y: auto;
+  background: rgba(8,4,24,0.6);
+  backdrop-filter: blur(8px);
+  border-left: 1px solid rgba(200,160,255,0.1);
+}
+.info-panel { display: flex; flex-direction: column; gap: 8px; }
+.info-title {
+  font-family: 'Cinzel', serif; font-size: 11px; font-weight: 700;
+  color: #fff; text-align: center; padding: 7px 10px; border-radius: 7px;
+  letter-spacing: 1px;
+}
+.info-title.melee   { background: linear-gradient(90deg,#7b1a1a,#c0392b); }
+.info-title.ranged  { background: linear-gradient(90deg,#145a32,#1e8449); }
+.info-title.support { background: linear-gradient(90deg,#4a2a8a,#7b4fcc); }
+.info-section {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(200,160,255,0.1);
+  border-radius: var(--radius); padding: 10px;
+}
+.sec-label {
+  font-size: 9px; font-weight: 800; color: rgba(200,160,255,0.55);
+  text-transform: uppercase; letter-spacing: 1px;
+  display: flex; align-items: center; gap: 5px; margin-bottom: 7px;
+}
+.sec-label::before { content:'◆'; font-size:7px; color:var(--gold); }
+.drop-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 4px 0; border-bottom: 1px solid rgba(200,160,255,0.07);
+}
+.drop-row:last-child { border-bottom: none; }
+.drop-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.drop-name { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.8); flex:1; margin-left:7px; }
+.drop-pct  { font-size: 10px; font-weight: 800; color: rgba(200,160,255,0.65); }
+.drop-name.mythic { color:#e74c3c; }
+.elem-row { display:flex; gap:5px; flex-wrap:wrap; }
+.elem-icon {
+  width:28px; height:28px; border-radius:50%;
+  border:1px solid rgba(200,160,255,0.2); background:rgba(255,255,255,0.05);
+  display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .15s;
+}
+.elem-icon:hover { border-color:var(--gold); transform:scale(1.1); }
+.elem-icon img { width:18px; height:18px; object-fit:contain; }
+.classes-row { display:flex; gap:8px; }
+.class-box { display:flex; flex-direction:column; align-items:center; gap:3px; flex:1; }
+.class-box-icon {
+  width:34px; height:34px; border-radius:8px;
+  background:rgba(255,255,255,0.07); border:1px solid rgba(200,160,255,0.15);
+  display:flex; align-items:center; justify-content:center;
+}
+.class-box-icon img { width:22px; height:22px; object-fit:contain; }
+.class-box-name { font-size:8px; color:rgba(200,160,255,0.55); font-weight:700; }
+.booster-card {
+  background:rgba(255,255,255,0.03); border:1px solid rgba(200,160,255,0.1);
+  border-radius:var(--radius); padding:10px;
+}
+.booster-title {
+  font-family:'Cinzel',serif; font-size:10px; font-weight:700;
+  color:var(--gold); text-align:center; margin-bottom:7px;
+}
+.booster-body { display:flex; align-items:center; gap:8px; }
+.booster-img { width:42px; height:42px; object-fit:contain; flex-shrink:0; }
+.booster-desc { font-size:9px; color:rgba(200,160,255,0.55); line-height:1.5; }
+.booster-count {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-top:8px; font-size:10px; color:rgba(200,160,255,0.65); font-weight:700;
+}
+.booster-add {
+  width:20px; height:20px; border-radius:50%;
+  background:rgba(245,197,24,0.12); border:1px solid var(--gold);
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; color:var(--gold); cursor:pointer; line-height:1;
+}
+
+/* ── BOTTOM NAVBAR ── */
+.bottom-nav {
+  height: 68px; flex-shrink: 0;
+  background: linear-gradient(180deg, rgba(20,8,50,0.97) 0%, rgba(10,4,30,0.99) 100%);
+  border-top: 1.5px solid rgba(160,100,255,0.35);
+  box-shadow: 0 -4px 24px rgba(120,60,220,0.25);
+  display: flex; align-items: center;
+  backdrop-filter: blur(16px);
+  position: relative; z-index: 20;
+}
+.bottom-nav::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(200,150,255,0.6), rgba(245,197,24,0.4), rgba(200,150,255,0.6), transparent);
+}
+.bot-item {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px; cursor: pointer; padding: 6px 0;
+  color: rgba(200,160,255,0.4); font-size: 10px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.8px;
+  transition: all .2s; position: relative;
+}
+.bot-item img { width: 24px; height: 24px; object-fit: contain; opacity: 0.45; transition: all .2s; }
+.bot-item.active {
+  color: var(--gold);
+}
+.bot-item.active::before {
+  content: '';
+  position: absolute; top: 0; left: 20%; right: 20%; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  border-radius: 999px;
+}
+.bot-item.active img { opacity: 1; filter: drop-shadow(0 0 6px rgba(245,197,24,0.7)); }
+.bot-item:hover { color: rgba(200,160,255,0.85); }
+.bot-item:hover img { opacity: 0.75; }
+.bot-dot {
+  position: absolute; top: 5px; right: calc(50% - 16px);
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--gold); box-shadow: 0 0 4px rgba(245,197,24,0.8);
+}
+::-webkit-scrollbar { width:3px; }
+::-webkit-scrollbar-thumb { background:rgba(200,160,255,0.2); border-radius:999px; }
+
+/* ── PORTAL CSS ANIMATION ── */
+.portal-css-wrap {
+  position: relative;
+  width: 430px; height: 500px;
+  display: flex; align-items: center; justify-content: center;
+  margin-top: 55px;
+  margin-left: -115px;
+}
+.pcss-aura {
+  position: absolute;
+  width: 400px; height: 400px;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -57%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(220,130,255,0.45) 0%, rgba(130,60,220,0.25) 45%, transparent 70%);
+  animation: pcssAura 3s ease-in-out infinite;
+  z-index: 1;
+}
+@keyframes pcssAura {
+  0%,100% { opacity:0.6; transform:translate(-50%,-57%) scale(1); }
+  50%      { opacity:1;   transform:translate(-50%,-57%) scale(1.1); }
+}
+.pcss-vortex {
+  position: absolute;
+  width: 400px; height: 400px;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -57%);
+  border-radius: 50%;
+  animation: pcssVortex 7s linear infinite;
+  z-index: 2;
+  mix-blend-mode: screen;
+  clip-path: ellipse(48% 48% at 50% 50%);
+}
+@keyframes pcssVortex {
+  from { transform: translate(-50%, -57%) rotate(0deg); }
+  to   { transform: translate(-50%, -57%) rotate(360deg); }
+}
+.pcss-arc {
+  position: absolute;
+  width: 428px; height: 495px;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  filter: drop-shadow(0 0 16px rgba(200,120,255,0.55)) drop-shadow(0 0 40px rgba(150,80,220,0.3));
+  animation: pcssArcGlow 3.5s ease-in-out infinite;
+}
+@keyframes pcssArcGlow {
+  0%,100% { filter: drop-shadow(0 0 16px rgba(200,120,255,0.55)) drop-shadow(0 0 40px rgba(150,80,220,0.3)); }
+  50%      { filter: drop-shadow(0 0 28px rgba(220,140,255,0.9)) drop-shadow(0 0 60px rgba(180,100,255,0.5)); }
+}
+/* Slime character — static + layered */
+.pcss-slime {
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  bottom: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+}
+.slime-body-img {
+  position: absolute;
+  width: 100%; height: 100%;
+  top: 0; left: 0;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 28px rgba(255,100,200,0.6));
+}
+.slime-eyes-wrap {
+  position: absolute;
+  width: 100%;
+  top: 20%;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  z-index: 2;
+}
+.slime-eye {
+  width: 48px;
+  object-fit: contain;
+  animation: eyeBlink 4s ease-in-out infinite;
+}
+.slime-eye.right { animation-delay: 0.06s; }
+@keyframes eyeBlink {
+  0%,85%,100% { transform: scaleY(1); }
+  90%,95%     { transform: scaleY(0.07); }
+}
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- BACKGROUND -->
+  <div class="summon-bg">
+    <img src="assets/summon/ui/summon-background.png" alt="">
+  </div>
+
+  <!-- AUDIO -->
+  <audio id="audioPortal" loop><source src="assets/summon/audio/portal-loop.mp3" type="audio/mpeg"></audio>
+  <audio id="audioCharge"><source src="assets/summon/audio/summon-charge.mp3" type="audio/mpeg"></audio>
+  <audio id="audioFlash"><source src="assets/summon/audio/summon-flash.mp3" type="audio/mpeg"></audio>
+  <audio id="audioReveal"><source src="assets/summon/audio/summon-reveal.mp3" type="audio/mpeg"></audio>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="top-left">
+      <div class="page-badge">
+        <img src="assets/summon/ui/summon-crystal.png" alt="">
+      </div>
+      <div>
+        <div class="page-title">Summon</div>
+        <div class="page-sub">Call powerful slimes and build your perfect team!</div>
+      </div>
+    </div>
+    <div class="top-currencies">
+      <div class="currency">
+        <img src="assets/icons/gem.png" alt="">
+        8,935
+        <div class="cur-add">+</div>
+      </div>
+      <div class="currency">
+        <img src="assets/icons/stat-volume.png" alt="">
+        1,245
+        <div class="cur-add">+</div>
+      </div>
+    </div>
+    <div class="top-icons">
+      <div class="top-icon"><img src="assets/icons/mail.png" alt=""></div>
+      <div class="top-icon"><img src="assets/icons/chat.png" alt=""></div>
+      <a href="index.html" class="top-icon"><img src="assets/icons/nav-dashboard.png" alt=""></a>
+    </div>
+  </div>
+
+  <div class="body-row">
+
+    <!-- LEFT PANEL — summon tabs -->
+    <div class="left-panel">
+      <div class="summon-tab melee active" onclick="switchTab('melee')">
+        <img class="tab-img" src="assets/summon/tabs/melee.png" alt="">
+      </div>
+      <div class="summon-tab ranged" onclick="switchTab('ranged')">
+        <img class="tab-img" src="assets/summon/tabs/ranged.png" alt="">
+      </div>
+      <div class="summon-tab support" onclick="switchTab('support')">
+        <img class="tab-img" src="assets/summon/tabs/support.png" alt="">
+      </div>
+      <div class="summon-tab pet" onclick="switchTab('pet')">
+        <img class="tab-img" src="assets/summon/tabs/pet.png" alt="">
+      </div>
+    </div>
+
+    <!-- CENTER — portal CSS animation -->
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;position:relative;z-index:10;overflow:visible;">
+      <div class="portal-css-wrap">
+        <div class="pcss-aura"></div>
+        <img class="pcss-vortex" src="assets/summon/ui/vortex-swirl.png" alt="">
+        <img class="pcss-arc" src="assets/summon/ui/portal-arc.png" alt="">
+        <!-- Slime character — static layered -->
+        <div class="pcss-slime" id="slimeChar">
+          <img class="slime-body-img" src="assets/summon/ui/slime-body.png" alt="">
+          <div class="slime-eyes-wrap">
+            <img class="slime-eye left"  src="assets/summon/ui/slime-eye-left.png" alt="">
+            <img class="slime-eye right" src="assets/summon/ui/slime-eye-right.png" alt="">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL — Summon Info -->
+    <div class="right-panel" id="rightPanel">
+      <!-- MELEE / RANGED / SUPPORT info -->
+      <div class="info-panel" id="infoPanelMain">
+
+        <div class="info-title melee" id="infoTitle">Summon Info</div>
+
+        <div class="info-section">
+          <div class="sec-label">Drop Rates</div>
+          <div class="drop-row"><div class="drop-dot" style="background:#95a5a6"></div><div class="drop-name">Common</div><div class="drop-pct">60%</div></div>
+          <div class="drop-row"><div class="drop-dot" style="background:#3498db"></div><div class="drop-name">Rare</div><div class="drop-pct">25%</div></div>
+          <div class="drop-row"><div class="drop-dot" style="background:#9b59b6"></div><div class="drop-name">Epic</div><div class="drop-pct">10%</div></div>
+          <div class="drop-row"><div class="drop-dot" style="background:#f39c12"></div><div class="drop-name">Legendary</div><div class="drop-pct">4%</div></div>
+          <div class="drop-row"><div class="drop-dot" style="background:#e74c3c"></div><div class="drop-name mythic">Mythic</div><div class="drop-pct">1%</div></div>
+        </div>
+
+        <div class="info-section">
+          <div class="sec-label">Elements</div>
+          <div class="elem-row">
+            <div class="elem-icon"><img src="assets/summon/icons/elem-fire.png" alt=""></div>
+            <div class="elem-icon"><img src="assets/summon/icons/elem-water.png" alt=""></div>
+            <div class="elem-icon"><img src="assets/summon/icons/elem-nature.png" alt=""></div>
+            <div class="elem-icon"><img src="assets/summon/icons/elem-light.png" alt=""></div>
+            <div class="elem-icon"><img src="assets/summon/icons/elem-dark.png" alt=""></div>
+            <div class="elem-icon"><img src="assets/summon/icons/elem-chaos.png" alt=""></div>
+          </div>
+        </div>
+
+        <div class="info-section">
+          <div class="sec-label">Classes in this Category</div>
+          <div class="classes-row" id="classesRow">
+            <div class="class-box">
+              <div class="class-box-icon"><img src="assets/summon/icons/swordsman.png" alt=""></div>
+              <div class="class-box-name">Swordsman</div>
+            </div>
+            <div class="class-box">
+              <div class="class-box-icon"><img src="assets/summon/icons/valkyrie.png" alt=""></div>
+              <div class="class-box-name">Valkyrie</div>
+            </div>
+            <div class="class-box">
+              <div class="class-box-icon"><img src="assets/summon/icons/guardian.png" alt=""></div>
+              <div class="class-box-name">Guardian</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="booster-card">
+          <div class="booster-title">Summon Booster</div>
+          <div class="booster-body">
+            <img src="assets/summon/slimes/melee/glow.png" class="booster-img" alt="">
+            <div class="booster-desc">Use a Summon Booster to increase your chances of getting higher rarity slimes!</div>
+          </div>
+          <div class="booster-count">
+            Boosters Owned: 2
+            <div class="booster-add">+</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM NAVBAR -->
+  <div class="bottom-nav">
+    <div class="bot-item active" onclick="setNav(this)">
+      <img src="assets/summon/icons/nav-summon.png" alt="">
+      <span>Summon</span>
+    </div>
+    <div class="bot-item" onclick="setNav(this)">
+      <img src="assets/summon/icons/nav-inventory.png" alt="">
+      <span>Inventory</span>
+    </div>
+    <div class="bot-item" onclick="setNav(this)">
+      <img src="assets/summon/icons/nav-shop.png" alt="">
+      <span>Shop</span>
+      <div class="bot-dot"></div>
+    </div>
+    <div class="bot-item" onclick="setNav(this)">
+      <img src="assets/summon/icons/nav-pets.png" alt="">
+      <span>Pets</span>
+    </div>
+    <div class="bot-item" onclick="setNav(this)">
+      <img src="assets/summon/icons/nav-history.png" alt="">
+      <span>History</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const classData = {
+  melee: {
+    color: 'melee',
+    classes: [
+      { name:'Swordsman', icon:'assets/summon/icons/swordsman.png' },
+      { name:'Valkyrie',  icon:'assets/summon/icons/valkyrie.png' },
+      { name:'Guardian',  icon:'assets/summon/icons/guardian.png' },
+    ]
+  },
+  ranged: {
+    color: 'ranged',
+    classes: [
+      { name:'Archer', icon:'assets/summon/icons/archer.png' },
+      { name:'Gunner', icon:'assets/summon/icons/gunner.png' },
+      { name:'Mage',   icon:'assets/summon/icons/mage.png' },
+    ]
+  },
+  support: {
+    color: 'support',
+    classes: [
+      { name:'Defender',  icon:'assets/summon/icons/defender.png' },
+      { name:'Priest',    icon:'assets/summon/icons/priest.png' },
+      { name:'Enchanter', icon:'assets/summon/icons/enchanter.png' },
+    ]
+  }
+};
+
+let current = 'melee';
+
+function switchTab(type) {
+  if (current === type) return;
+  current = type;
+
+  document.querySelectorAll('.summon-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector('.summon-tab.' + type).classList.add('active');
+
+  // Show/hide right panel (pet = hidden)
+  const rightPanel = document.getElementById('rightPanel');
+  if (type === 'pet') {
+    rightPanel.style.display = 'none';
+  } else {
+    rightPanel.style.display = '';
+    // Update info title color
+    document.getElementById('infoTitle').className = 'info-title ' + type;
+    // Update classes
+    const cr = document.getElementById('classesRow');
+    if (classData[type]) {
+      cr.innerHTML = classData[type].classes.map(c => `
+        <div class="class-box">
+          <div class="class-box-icon"><img src="${c.icon}" alt=""></div>
+          <div class="class-box-name">${c.name}</div>
+        </div>
+      `).join('');
+    }
+  }
+
+  // Switch portal layers
+  const wrap = document.getElementById('portalWrap');
+  if (wrap) {
+    wrap.classList.add('switching');
+    setTimeout(() => {
+      ['pFloor','pInner','pGlow','pParticles','pRing'].forEach(id => {
+        const el = document.getElementById(id);
+        const file = id.replace('p','').toLowerCase();
+        if (el) el.src = `assets/summon/portals/${type}/${file}.png`;
+      });
+      wrap.classList.remove('switching');
+    }, 275);
+  }
+}
+
+function doSummon() {
+  const flash = document.getElementById('pFlash');
+  flash.classList.remove('active');
+  void flash.offsetWidth;
+  flash.classList.add('active');
+  setTimeout(() => flash.classList.remove('active'), 750);
+
+  if (document.getElementById('skipAnim').checked) return;
+  const charge = document.getElementById('audioCharge');
+  const flashA = document.getElementById('audioFlash');
+  const reveal = document.getElementById('audioReveal');
+  if (charge) { charge.currentTime = 0; charge.play().catch(()=>{}); }
+  setTimeout(() => { if(flashA){ flashA.currentTime=0; flashA.play().catch(()=>{}); } }, 400);
+  setTimeout(() => { if(reveal){ reveal.currentTime=0; reveal.play().catch(()=>{}); } }, 700);
+}
+
+function setNav(el) {
+  document.querySelectorAll('.bot-item').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+window.addEventListener('click', () => {
+  const p = document.getElementById('audioPortal');
+  if (p && p.paused) p.play().catch(()=>{});
+}, { once: true });
+</script>
+</body>
+</html>
